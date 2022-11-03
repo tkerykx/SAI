@@ -1897,6 +1897,13 @@ void check_attr_acl_fields(
 
             }
 
+            if (md->objecttype == SAI_OBJECT_TYPE_ACL_ENTRY &&
+                    md->attrid >= SAI_ACL_ENTRY_ATTR_FIELD_EXTENSIONS_START &&
+                    md->attrid  <= SAI_ACL_ENTRY_ATTR_FIELD_EXTENSIONS_END )
+            {
+                break;
+            }
+
             if (md->objecttype == SAI_OBJECT_TYPE_UDF_MATCH)
             {
                 /*
@@ -4496,7 +4503,7 @@ void check_acl_entry_actions()
             break;
         }
 
-        if ((meta->isextensionattr == false) && (meta->attrid > SAI_ACL_ENTRY_ATTR_ACTION_END))
+        if ((meta->attrid > SAI_ACL_ENTRY_ATTR_ACTION_END))
         {
             break;
         }
