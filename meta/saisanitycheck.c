@@ -1897,6 +1897,11 @@ void check_attr_acl_fields(
 
             }
 
+            if (md->objecttype == SAI_OBJECT_TYPE_ACL_ENTRY && md->isextensionattr)
+            {
+                break;
+            }
+
             if (md->objecttype == SAI_OBJECT_TYPE_UDF_MATCH)
             {
                 /*
@@ -4475,6 +4480,7 @@ void check_acl_entry_actions()
     {
         if (meta_acl_entry[index]->attrid == SAI_ACL_ENTRY_ATTR_ACTION_START)
         {
+            printf("==TK1== index=%li\n", index);
             break;
         }
     }
@@ -4490,14 +4496,16 @@ void check_acl_entry_actions()
     while (true)
     {
         const sai_attr_metadata_t *meta = meta_acl_entry[index];
-
+printf("==TK2== index=%li enum_index=%ld\n", index, enum_index);
         if (meta == NULL)
         {
+            printf("==TK3== index=%li enum_index=%ld\n", index, enum_index);
             break;
         }
 
         if ((meta->isextensionattr == false) && (meta->attrid > SAI_ACL_ENTRY_ATTR_ACTION_END))
         {
+            printf("==TK4== index=%li enum_index=%ld\n", index, enum_index);
             break;
         }
 
@@ -4507,32 +4515,41 @@ void check_acl_entry_actions()
         }
 
         const char* enum_name = sai_metadata_enum_sai_acl_action_type_t.valuesnames[enum_index];
+        if (meta->isextensionattr == true)
+        {
+            enum_name = sai_metadata_enum_sai_acl_entry_attr_extensions_t.valuesnames[enum_index];
+        }
 
+printf("enum_name=%s meta->isextensionattr=%i meta->attrid=%i\n", enum_name, meta->isextensionattr, meta->attrid);
         META_ASSERT_NOT_NULL(enum_name);
 
         META_LOG_DEBUG("processing acl action: %s %s", meta->attridname, enum_name);
 
-        /*
-         * check acl fields attribute if endings are the same
-         */
-
-        const char * enum_name_pos = strstr(enum_name, "_ACTION_TYPE_");
-
-        META_ASSERT_NOT_NULL(enum_name_pos);
-
-        const char * attr_entry_pos = strstr(meta->attridname, "_ATTR_ACTION_");
-
-        META_ASSERT_NOT_NULL(attr_entry_pos);
-
-        if (strcmp(enum_name_pos + strlen("_ACTION_TYPE_"), attr_entry_pos + strlen("_ATTR_ACTION_")) != 0)
+        if (meta->isextensionattr == false)
         {
-            META_ASSERT_FAIL("attr entry action name %s is not ending at the same enum name %s",
-                    meta->attridname, enum_name);
+            /*
+            * check acl fields attribute if endings are the same
+            */
+
+            const char * enum_name_pos = strstr(enum_name, "_ACTION_TYPE_");
+
+            META_ASSERT_NOT_NULL(enum_name_pos);
+
+            const char * attr_entry_pos = strstr(meta->attridname, "_ATTR_ACTION_");
+
+            META_ASSERT_NOT_NULL(attr_entry_pos);
+
+            if (strcmp(enum_name_pos + strlen("_ACTION_TYPE_"), attr_entry_pos + strlen("_ATTR_ACTION_")) != 0)
+            {
+                META_ASSERT_FAIL("attr entry action name %s is not ending at the same enum name %s",
+                        meta->attridname, enum_name);
+            }
         }
 
         index++;
         enum_index++;
     }
+    printf("==TK5== index=%li enum_index=%ld\n", index, enum_index);
 
     META_ASSERT_TRUE(enum_index == sai_metadata_enum_sai_acl_action_type_t.valuescount,
             "number of acl entry action mismatch vs number of enums in sai_acl_action_type_t");
