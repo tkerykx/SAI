@@ -4551,9 +4551,10 @@ printf("enum_name=%s meta->isextensionattr=%i meta->attrid=%i\n", enum_name, met
     }
     printf("==TK5== index=%li enum_index=%ld\n", index, enum_index);
 
-    META_ASSERT_TRUE(enum_index == sai_metadata_enum_sai_acl_action_type_t.valuescount,
+    META_ASSERT_TRUE(enum_index == (sai_metadata_enum_sai_acl_action_type_t.valuescount + sai_metadata_enum_sai_acl_entry_attr_extensions_t.valuescount),
             "number of acl entry action mismatch vs number of enums in sai_acl_action_type_t");
 }
+
 
 void check_switch_attributes()
 {
